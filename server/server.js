@@ -9,7 +9,7 @@ const adminRoutes = require("./routes/admin.js");
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 8080;
 const PgSession = connectPgSimple(session);
 
 app.set("trust proxy", 1);
@@ -37,8 +37,8 @@ app.use(
     rolling: true,
     cookie: {
       httpOnly: true,
-      secure: false,
-      sameSite: "lax",
+      secure: true,
+      sameSite: "none",
       maxAge: 1000 * 60 * 60 * 24 * 7,
     },
   })
