@@ -1,0 +1,276 @@
+.locations-page {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.locations-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+}
+
+.locations-header h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+  color: #111827;
+}
+
+.locations-header p {
+  margin: 6px 0 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.locations-search {
+  width: 100%;
+  max-width: 320px;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 14px;
+  outline: none;
+  background: #fff;
+}
+
+.locations-search:focus,
+.city-add-row input:focus,
+.city-inline-input:focus {
+  border-color: #8f68ff;
+  box-shadow: 0 0 0 3px rgba(143, 104, 255, 0.12);
+}
+
+.locations-message {
+  padding: 14px 16px;
+  border-radius: 14px;
+  font-weight: 600;
+}
+
+.locations-message.success {
+  background: rgba(16, 185, 129, 0.12);
+  color: #047857;
+}
+
+.locations-message.error {
+  background: rgba(239, 68, 68, 0.12);
+  color: #b91c1c;
+}
+
+.locations-section {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(17, 24, 39, 0.06);
+  padding: 18px;
+}
+
+.locations-section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.locations-section-head h2 {
+  margin: 0;
+  font-size: 18px;
+  color: #111827;
+}
+
+.locations-total-count {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.locations-list {
+  display: grid;
+  gap: 16px;
+}
+
+.locations-empty-card,
+.locations-empty-inner {
+  border: 1px solid #eef2f7;
+  background: #fafbff;
+  border-radius: 16px;
+  padding: 20px;
+  color: #6b7280;
+  text-align: center;
+}
+
+.province-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.province-card-head {
+  padding: 16px;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.province-expand-btn {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  padding: 0;
+  width: 100%;
+}
+
+.province-chevron {
+  font-size: 18px;
+  color: #6b7280;
+  transition: transform 0.18s ease;
+}
+
+.province-chevron.open {
+  transform: rotate(0deg);
+}
+
+.province-chevron:not(.open) {
+  transform: rotate(-90deg);
+}
+
+.province-title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.province-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: #111827;
+}
+
+.province-subtitle {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.province-body {
+  padding: 16px;
+  display: grid;
+  gap: 14px;
+}
+
+.city-add-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.city-add-row input,
+.city-inline-input {
+  flex: 1;
+  min-width: 220px;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  padding: 11px 13px;
+  font-size: 14px;
+  outline: none;
+  background: #fff;
+}
+
+.cities-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.cities-table {
+  width: 100%;
+  min-width: 520px;
+  border-collapse: collapse;
+}
+
+.cities-table thead th {
+  text-align: left;
+  font-size: 13px;
+  color: #6b7280;
+  padding: 12px;
+  border-bottom: 1px solid #e5e7eb;
+  white-space: nowrap;
+}
+
+.cities-table tbody td {
+  padding: 14px 12px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 14px;
+  color: #111827;
+}
+
+.cities-table tbody tr:hover {
+  background: #fafbff;
+}
+
+.city-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.locations-btn {
+  border: none;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.18s ease;
+}
+
+.locations-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.locations-btn-primary {
+  color: #fff;
+  background: linear-gradient(135deg, #487bff 0%, #8f68ff 55%, #fc72ff 100%);
+}
+
+.locations-btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(143, 104, 255, 0.22);
+}
+
+.locations-btn-secondary {
+  color: #111827;
+  background: #f3f4f6;
+}
+
+.locations-btn-secondary:hover:not(:disabled) {
+  background: #e5e7eb;
+}
+
+.locations-btn-danger {
+  color: #fff;
+  background: #dc2626;
+}
+
+.locations-btn-danger:hover:not(:disabled) {
+  background: #b91c1c;
+}
+
+@media (max-width: 768px) {
+  .locations-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .locations-search {
+    max-width: none;
+  }
+
+  .city-add-row {
+    flex-direction: column;
+  }
+}

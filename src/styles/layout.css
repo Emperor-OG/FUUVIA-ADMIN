@@ -1,0 +1,97 @@
+.admin-layout {
+  min-height: 100vh;
+  display: flex;
+}
+
+.admin-sidebar {
+  width: 260px;
+  padding: 22px 16px;
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(18px);
+  border-right: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow: var(--admin-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.admin-brand {
+  font-size: 24px;
+  font-weight: 800;
+  background: var(--admin-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.admin-profile-box {
+  padding: 14px;
+  border-radius: 16px;
+  background: rgba(143, 104, 255, 0.08);
+}
+
+.admin-profile-name {
+  font-weight: 700;
+}
+
+.admin-profile-role {
+  margin-top: 4px;
+  font-size: 14px;
+  color: var(--admin-muted);
+  text-transform: capitalize;
+}
+
+.admin-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 14px;
+  border-radius: 14px;
+  color: #2d3748;
+  transition: 0.2s ease;
+}
+
+.admin-nav-link i {
+  font-size: 20px;
+}
+
+.admin-nav-link:hover,
+.admin-nav-link.active {
+  background: rgba(143, 104, 255, 0.1);
+}
+
+.admin-logout-btn {
+  margin-top: auto;
+  border: none;
+  border-radius: 14px;
+  padding: 14px 16px;
+  background: #111827;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.admin-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-topbar {
+  padding: 24px 24px 0;
+}
+
+.admin-topbar h1 {
+  margin: 0;
+  font-size: 28px;
+}
+
+.admin-page-content {
+  padding: 24px;
+}

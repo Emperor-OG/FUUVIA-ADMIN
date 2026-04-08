@@ -1,0 +1,41 @@
+.overview-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.overview-header h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.overview-header p {
+  margin: 6px 0 0;
+  color: var(--admin-muted);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.stat-card {
+  padding: 20px;
+  border-radius: 20px;
+  background: var(--admin-card);
+  backdrop-filter: blur(18px);
+  box-shadow: var(--admin-shadow);
+  border: 1px solid var(--admin-border);
+}
+
+.stat-card-title {
+  font-size: 14px;
+  color: var(--admin-muted);
+  margin-bottom: 10px;
+}
+
+.stat-card-value {
+  font-size: 28px;
+  font-weight: 800;
+}
