@@ -1,10 +1,22 @@
 const { Storage } = require("@google-cloud/storage");
-const path = require("path");
 
-// Load service account directly
+// Build credentials object from .env
+const credentials = {
+  type: "service_account",
+  project_id: process.env.GCP_PROJECT_ID,
+  private_key_id: process.env.GCP_PRIVATE_KEY_ID,
+  private_key: process.env.GCP_PRIVATE_KEY.replace(/\\n/g, "\n"),
+  client_email: process.env.GCP_CLIENT_EMAIL,
+  client_id: process.env.GCP_CLIENT_ID,
+  auth_uri: process.env.GCP_AUTH_URI,
+  token_uri: process.env.GCP_TOKEN_URI,
+  auth_provider_x509_cert_url: process.env.GCP_AUTH_PROVIDER_CERT_URL,
+  client_x509_cert_url: process.env.GCP_CLIENT_CERT_URL,
+};
+
 const storage = new Storage({
-  keyFilename: path.join(__dirname, "./service-account.json"),
-  projectId: process.env.GCP_PROJECT_ID
+  credentials,
+  projectId: process.env.GCP_PROJECT_ID,
 });
 
 // Buckets
@@ -17,72 +29,47 @@ const buckets = {
   proofOfResidence: storage.bucket(process.env.PROOF_OF_RESIDENCE),
 };
 
-// Upload file to bucket
+// Upload file
 async function uploadFileToBucket(file, bucket) {
-
   if (!bucket || typeof bucket.file !== "function") {
     throw new Error("Invalid bucket provided to uploadFileToBucket()");
   }
 
-  if (!file) {
-    throw new Error("No file provided for upload");
-  }
-
-  const fileName = `${Date.now()}-${file.originalname}`;
-  const blob = bucket.file(fileName);
-
+  const blob = bucket.file(`${Date.now()}-${file.originalname}`);
   const blobStream = blob.createWriteStream({
     resumable: false,
     contentType: file.mimetype,
   });
 
   return new Promise((resolve, reject) => {
-
-    blobStream.on("error", (err) => {
-      console.error("Upload error:", err);
-      reject(err);
-    });
-
+    blobStream.on("error", reject);
     blobStream.on("finish", () => {
-
       const publicUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
-
       console.log(`Uploaded to ${bucket.name}: ${blob.name}`);
-
       resolve(publicUrl);
     });
-
     blobStream.end(file.buffer);
   });
 }
 
-// Delete file from bucket
+// Delete file
 async function deleteFileFromBucket(bucket, fileUrl) {
-
   try {
-
     if (!fileUrl) return;
 
     const parts = fileUrl.split("/");
     const fileName = decodeURIComponent(parts.slice(4).join("/"));
-
     await bucket.file(fileName).delete();
 
     console.log(`Deleted file: ${fileName}`);
-
   } catch (err) {
-
     if (err.code === 404) {
       console.log("File not found, skipping delete...");
     } else {
       console.error("Delete failed:", err);
     }
-
   }
 }
 
-module.exports = {
-  buckets,
-  uploadFileToBucket,
-  deleteFileFromBucket
-};
+
+module.exports = { buckets, uploadFileToBucket, deleteFileFromBucket };
