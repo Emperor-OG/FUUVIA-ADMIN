@@ -24,9 +24,6 @@ console.log("PORT:", PORT);
 
 app.set("trust proxy", 1);
 
-/* =========================
-   MIDDLEWARE
-========================= */
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
@@ -39,15 +36,12 @@ app.use(
   })
 );
 
-/* =========================
-   SESSION
-========================= */
 app.use(
   session({
     store: new PgSession({
       pool,
       tableName: "admin_sessions",
-      createTableIfMissing: true,
+      createTableIfMissing: false,
     }),
     name: "fuuvia_admin_sid",
     secret: process.env.SESSION_SECRET || "fallback_admin_secret",
@@ -57,27 +51,18 @@ app.use(
     cookie: {
       httpOnly: true,
       secure: isProd,
-      sameSite: isProd ? "lax" : "lax",
+      sameSite: "lax",
       maxAge: 1000 * 60 * 60 * 24 * 7,
     },
   })
 );
 
-/* =========================
-   HEALTH CHECK
-========================= */
 app.get("/api/health", (req, res) => {
   res.json({ ok: true, service: "fuuvia-admin-server" });
 });
 
-/* =========================
-   API ROUTES
-========================= */
 app.use("/api/admin", adminRoutes);
 
-/* =========================
-   SERVE FRONTEND (PRODUCTION)
-========================= */
 if (isProd) {
   const clientPath = path.join(__dirname, "..", "dist");
 
@@ -93,9 +78,6 @@ if (isProd) {
   }
 }
 
-/* =========================
-   ERROR HANDLING
-========================= */
 app.use((req, res) => {
   res.status(404).json({ error: "Not found" });
 });
@@ -107,9 +89,6 @@ app.use((err, req, res, next) => {
   }
 });
 
-/* =========================
-   START SERVER
-========================= */
 app.listen(PORT, HOST, () => {
   console.log(
     `✅ FUUVIA Admin server running on ${HOST}:${PORT} (${isProd ? "Production" : "Dev"})`
