@@ -1,36 +1,43 @@
 const express = require("express");
+const session = require("express-session");
 const cors = require("cors");
 const dotenv = require("dotenv");
-const session = require("express-session");
-const connectPgSimple = require("connect-pg-simple");
 const path = require("path");
+const fs = require("fs");
+const connectPgSimple = require("connect-pg-simple");
 
 const pool = require("./db.js");
 const adminRoutes = require("./routes/admin.js");
 
-dotenv.config();
+const envPath = path.join(__dirname, "..", ".env");
+if (fs.existsSync(envPath)) dotenv.config({ path: envPath });
+else dotenv.config();
 
 const app = express();
+const isProd = process.env.NODE_ENV === "production";
 const PORT = process.env.PORT || 8080;
+const HOST = "0.0.0.0";
 const PgSession = connectPgSimple(session);
 
-const isProduction = process.env.NODE_ENV === "production";
+console.log("NODE_ENV:", process.env.NODE_ENV);
+console.log("PORT:", PORT);
 
 app.set("trust proxy", 1);
 
 /* =========================
-   CORS (DEV vs PROD)
+   MIDDLEWARE
 ========================= */
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+
 app.use(
   cors({
-    origin: isProduction
-      ? true // same-origin in prod
+    origin: isProd
+      ? true
       : process.env.ADMIN_ORIGIN || "http://localhost:5173",
     credentials: true,
   })
 );
-
-app.use(express.json());
 
 /* =========================
    SESSION
@@ -43,44 +50,68 @@ app.use(
       createTableIfMissing: true,
     }),
     name: "fuuvia_admin_sid",
-    secret: process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET || "fallback_admin_secret",
     resave: false,
     saveUninitialized: false,
     rolling: true,
     cookie: {
       httpOnly: true,
-      secure: isProduction, // IMPORTANT
-      sameSite: isProduction ? "lax" : "lax",
+      secure: isProd,
+      sameSite: isProd ? "lax" : "lax",
       maxAge: 1000 * 60 * 60 * 24 * 7,
     },
   })
 );
 
 /* =========================
-   API ROUTES
+   HEALTH CHECK
 ========================= */
 app.get("/api/health", (req, res) => {
   res.json({ ok: true, service: "fuuvia-admin-server" });
 });
 
+/* =========================
+   API ROUTES
+========================= */
 app.use("/api/admin", adminRoutes);
 
 /* =========================
-   SERVE FRONTEND (DIST)
+   SERVE FRONTEND (PRODUCTION)
 ========================= */
-const distPath = path.join(__dirname, "..", "dist");
+if (isProd) {
+  const clientPath = path.join(__dirname, "..", "dist");
 
-app.use(express.static(distPath));
+  console.log("Admin dist path:", clientPath);
+  console.log("Admin dist exists:", fs.existsSync(clientPath));
 
-app.get("*", (req, res, next) => {
-  if (req.path.startsWith("/api/")) return next();
+  if (fs.existsSync(clientPath)) {
+    app.use(express.static(clientPath));
 
-  res.sendFile(path.join(distPath, "index.html"));
+    app.get(/^(?!\/api\/).*/, (req, res) => {
+      return res.sendFile(path.join(clientPath, "index.html"));
+    });
+  }
+}
+
+/* =========================
+   ERROR HANDLING
+========================= */
+app.use((req, res) => {
+  res.status(404).json({ error: "Not found" });
+});
+
+app.use((err, req, res, next) => {
+  console.error("Unhandled admin server error:", err);
+  if (!res.headersSent) {
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 /* =========================
    START SERVER
 ========================= */
-app.listen(PORT, () => {
-  console.log(`FUUVIA admin server running on port ${PORT}`);
+app.listen(PORT, HOST, () => {
+  console.log(
+    `✅ FUUVIA Admin server running on ${HOST}:${PORT} (${isProd ? "Production" : "Dev"})`
+  );
 });
