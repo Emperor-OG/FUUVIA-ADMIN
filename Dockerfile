@@ -1,4 +1,4 @@
-# Build stage
+# Build frontend
 FROM node:20-alpine AS builder
 
 WORKDIR /app
@@ -10,17 +10,20 @@ COPY . .
 
 RUN npm run build
 
-# Runtime stage
+# Run backend + serve built frontend
 FROM node:20-alpine
 
 WORKDIR /app
 
-RUN npm install -g serve
+COPY package*.json ./
+RUN npm ci --omit=dev
 
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/server ./server
 
+ENV NODE_ENV=production
 ENV PORT=8080
 
 EXPOSE 8080
 
-CMD ["sh", "-c", "serve -s dist -l ${PORT}"]
+CMD ["node", "server/server.js"]
