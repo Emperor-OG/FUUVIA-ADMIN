@@ -10,7 +10,7 @@ COPY . .
 
 RUN npm run build
 
-# Run backend + serve built frontend
+# Runtime
 FROM node:20-alpine
 
 WORKDIR /app
@@ -23,6 +23,10 @@ COPY --from=builder /app/server ./server
 
 ENV NODE_ENV=production
 ENV PORT=8080
+
+EXPOSE 8080
+
+CMD ["node", "server/server.js"]
 
 EXPOSE 8080
 
