@@ -88,9 +88,17 @@ export default function Affiliates() {
   const handleAction = async (affiliateId, action) => {
     try {
       setActionLoadingId(affiliateId);
-      await adminFetch(`/api/admin/affiliates/${affiliateId}/${action}`, {
+      const data = await adminFetch(`/api/admin/affiliates/${affiliateId}/${action}`, {
         method: "POST",
       });
+
+      if (action === "pay" && data?.payout_total) {
+        alert(
+          `Marked as paid successfully.\nPayout total: R${Number(
+            data.payout_total
+          ).toFixed(2)}`
+        );
+      }
 
       await loadAffiliates();
 
@@ -246,69 +254,89 @@ export default function Affiliates() {
                   <th>Referral Code</th>
                   <th>Orders</th>
                   <th>Tracked</th>
+                  <th>Completed</th>
                   <th>Ready</th>
                   <th>Paid</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {affiliates.map((affiliate) => (
-                  <tr key={affiliate.id}>
-                    <td>{affiliate.id}</td>
-                    <td>{affiliate.full_name}</td>
-                    <td>{affiliate.email}</td>
-                    <td>
-                      <span
-                        className={`affiliates-status affiliates-status--${String(
-                          affiliate.status || ""
-                        ).toLowerCase()}`}
-                      >
-                        {affiliate.status}
-                      </span>
-                    </td>
-                    <td>{affiliate.referral_code || "-"}</td>
-                    <td>{affiliate.order_count || 0}</td>
-                    <td>R{Number(affiliate.tracked_total || 0).toFixed(2)}</td>
-                    <td>R{Number(affiliate.ready_total || 0).toFixed(2)}</td>
-                    <td>R{Number(affiliate.paid_total || 0).toFixed(2)}</td>
-                    <td>
-                      <div className="affiliates-actions">
-                        <button
-                          type="button"
-                          className="affiliates-btn"
-                          onClick={() => loadAffiliateOrders(affiliate)}
+                {affiliates.map((affiliate) => {
+                  const readyAmount = Number(affiliate.ready_total || 0);
+
+                  return (
+                    <tr key={affiliate.id}>
+                      <td>{affiliate.id}</td>
+                      <td>{affiliate.full_name}</td>
+                      <td>{affiliate.email}</td>
+                      <td>
+                        <span
+                          className={`affiliates-status affiliates-status--${String(
+                            affiliate.status || ""
+                          ).toLowerCase()}`}
                         >
-                          <i className="bx bx-receipt"></i>
-                          <span>Orders</span>
-                        </button>
-
-                        {affiliate.status !== "suspended" ? (
+                          {affiliate.status}
+                        </span>
+                      </td>
+                      <td>{affiliate.referral_code || "-"}</td>
+                      <td>{affiliate.order_count || 0}</td>
+                      <td>R{Number(affiliate.tracked_total || 0).toFixed(2)}</td>
+                      <td>R{Number(affiliate.completed_total || 0).toFixed(2)}</td>
+                      <td>R{readyAmount.toFixed(2)}</td>
+                      <td>R{Number(affiliate.paid_total || 0).toFixed(2)}</td>
+                      <td>
+                        <div className="affiliates-actions">
                           <button
                             type="button"
-                            className="affiliates-btn affiliates-btn--warn"
-                            onClick={() => handleAction(affiliate.id, "suspend")}
-                            disabled={actionLoadingId === affiliate.id}
+                            className="affiliates-btn"
+                            onClick={() => loadAffiliateOrders(affiliate)}
                           >
-                            <i className="bx bx-pause-circle"></i>
-                            <span>Suspend</span>
+                            <i className="bx bx-receipt"></i>
+                            <span>Orders</span>
                           </button>
-                        ) : null}
 
-                        {affiliate.status !== "active" ? (
-                          <button
-                            type="button"
-                            className="affiliates-btn affiliates-btn--approve"
-                            onClick={() => handleAction(affiliate.id, "approve")}
-                            disabled={actionLoadingId === affiliate.id}
-                          >
-                            <i className="bx bx-check-circle"></i>
-                            <span>Activate</span>
-                          </button>
-                        ) : null}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                          {readyAmount > 0 ? (
+                            <button
+                              type="button"
+                              className="affiliates-btn affiliates-btn--pay"
+                              onClick={() => handleAction(affiliate.id, "pay")}
+                              disabled={actionLoadingId === affiliate.id}
+                            >
+                              <i className="bx bx-wallet"></i>
+                              <span>
+                                {actionLoadingId === affiliate.id ? "Paying..." : "Mark Paid"}
+                              </span>
+                            </button>
+                          ) : null}
+
+                          {affiliate.status !== "suspended" ? (
+                            <button
+                              type="button"
+                              className="affiliates-btn affiliates-btn--warn"
+                              onClick={() => handleAction(affiliate.id, "suspend")}
+                              disabled={actionLoadingId === affiliate.id}
+                            >
+                              <i className="bx bx-pause-circle"></i>
+                              <span>Suspend</span>
+                            </button>
+                          ) : null}
+
+                          {affiliate.status !== "active" ? (
+                            <button
+                              type="button"
+                              className="affiliates-btn affiliates-btn--approve"
+                              onClick={() => handleAction(affiliate.id, "approve")}
+                              disabled={actionLoadingId === affiliate.id}
+                            >
+                              <i className="bx bx-check-circle"></i>
+                              <span>Activate</span>
+                            </button>
+                          ) : null}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -354,6 +382,7 @@ export default function Affiliates() {
                   <th>Order Status</th>
                   <th>Earning Status</th>
                   <th>Payout Date</th>
+                  <th>Paid At</th>
                 </tr>
               </thead>
               <tbody>
@@ -374,6 +403,11 @@ export default function Affiliates() {
                     <td>
                       {order.eligible_for_payout_at
                         ? new Date(order.eligible_for_payout_at).toLocaleString()
+                        : "-"}
+                    </td>
+                    <td>
+                      {order.paid_at
+                        ? new Date(order.paid_at).toLocaleString()
                         : "-"}
                     </td>
                   </tr>
