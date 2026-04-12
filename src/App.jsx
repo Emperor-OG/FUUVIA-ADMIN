@@ -8,6 +8,7 @@ import Orders from "./pages/Orders";
 import Users from "./pages/Users";
 import Products from "./pages/Products";
 import Locations from "./pages/Locations";
+import Affiliates from "./pages/Affiliates";
 import ProtectedAdminRoute from "./routes/ProtectedAdminRoute";
 import AdminLayout from "./layouts/AdminLayout";
 
@@ -31,6 +32,7 @@ export default function App() {
         <Route path="users" element={<Users />} />
         <Route path="products" element={<Products />} />
         <Route path="locations" element={<Locations />} />
+        <Route path="affiliates" element={<Affiliates />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
