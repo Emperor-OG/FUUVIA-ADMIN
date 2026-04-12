@@ -17,6 +17,9 @@ router.get("/", requireAdminAuth, async (req, res) => {
       provincesResult,
       citiesResult,
       staffResult,
+      affiliatesResult,
+      pendingAffiliatesResult,
+      activeAffiliatesResult,
     ] = await Promise.all([
       pool.query(`SELECT COUNT(*)::int AS total FROM users`),
       pool.query(`SELECT COUNT(*)::int AS total FROM stores`),
@@ -29,6 +32,17 @@ router.get("/", requireAdminAuth, async (req, res) => {
         FROM staff
         WHERE COALESCE(is_deleted, false) = false
       `),
+      pool.query(`SELECT COUNT(*)::int AS total FROM affiliates`),
+      pool.query(`
+        SELECT COUNT(*)::int AS total
+        FROM affiliates
+        WHERE status = 'pending'
+      `),
+      pool.query(`
+        SELECT COUNT(*)::int AS total
+        FROM affiliates
+        WHERE status = 'active'
+      `),
     ]);
 
     return res.json({
@@ -39,6 +53,9 @@ router.get("/", requireAdminAuth, async (req, res) => {
       provinces: provincesResult.rows[0].total,
       cities: citiesResult.rows[0].total,
       staff: staffResult.rows[0].total,
+      affiliates: affiliatesResult.rows[0].total,
+      pending_affiliates: pendingAffiliatesResult.rows[0].total,
+      active_affiliates: activeAffiliatesResult.rows[0].total,
     });
   } catch (error) {
     console.error("Overview error:", error);
