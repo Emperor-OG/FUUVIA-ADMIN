@@ -1,5 +1,4 @@
 const express = require("express");
-const crypto = require("crypto");
 const pool = require("../../db");
 
 const router = express.Router();
@@ -20,15 +19,22 @@ function canManageAffiliates(role) {
 function generateReferralCode(fullName = "") {
   const cleaned = String(fullName)
     .toUpperCase()
-    .replace(/[^A-Z0-9]/g, "")
-    .slice(0, 6);
+    .replace(/[^A-Z0-9]/g, "");
 
-  const randomPart = crypto.randomBytes(3).toString("hex").toUpperCase();
-  return `FUU${cleaned}${randomPart}`.slice(0, 14);
+  const prefix = cleaned.slice(0, 3).padEnd(3, "X");
+
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let randomPart = "";
+
+  for (let i = 0; i < 3; i++) {
+    randomPart += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+
+  return `${prefix}${randomPart}`;
 }
 
 async function getUniqueReferralCode(fullName) {
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 20; i++) {
     const code = generateReferralCode(fullName);
 
     const exists = await pool.query(
