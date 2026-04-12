@@ -2,6 +2,45 @@ import React, { useEffect, useState } from "react";
 import { adminFetch } from "../services/api";
 import "../styles/affiliates.css";
 
+function parseApplicationNote(note = "") {
+  const safeNote = String(note || "").trim();
+
+  if (!safeNote) {
+    return {
+      socialLink: "",
+      noteText: "",
+    };
+  }
+
+  const lines = safeNote
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  let socialLink = "";
+  const otherLines = [];
+
+  for (const line of lines) {
+    if (!socialLink && line.toLowerCase().startsWith("social link:")) {
+      socialLink = line.replace(/^social link:\s*/i, "").trim();
+    } else {
+      otherLines.push(line);
+    }
+  }
+
+  return {
+    socialLink,
+    noteText: otherLines.join("\n\n"),
+  };
+}
+
+function normalizeLink(url = "") {
+  const value = String(url || "").trim();
+  if (!value) return "";
+  if (/^https?:\/\//i.test(value)) return value;
+  return `https://${value}`;
+}
+
 export default function Affiliates() {
   const [pending, setPending] = useState([]);
   const [affiliates, setAffiliates] = useState([]);
@@ -110,47 +149,74 @@ export default function Affiliates() {
                 </tr>
               </thead>
               <tbody>
-                {pending.map((affiliate) => (
-                  <tr key={affiliate.id}>
-                    <td>{affiliate.id}</td>
-                    <td>{affiliate.full_name}</td>
-                    <td>{affiliate.email}</td>
-                    <td>{affiliate.phone || "-"}</td>
-                    <td>
-                      {affiliate.created_at
-                        ? new Date(affiliate.created_at).toLocaleString()
-                        : "-"}
-                    </td>
-                    <td className="affiliates-note-cell">
-                      {affiliate.application_note || "-"}
-                    </td>
-                    <td>
-                      <div className="affiliates-actions">
-                        <button
-                          type="button"
-                          className="affiliates-btn affiliates-btn--approve"
-                          onClick={() => handleAction(affiliate.id, "approve")}
-                          disabled={actionLoadingId === affiliate.id}
-                        >
-                          <i className="bx bx-check"></i>
-                          <span>
-                            {actionLoadingId === affiliate.id ? "Working..." : "Approve"}
-                          </span>
-                        </button>
+                {pending.map((affiliate) => {
+                  const { socialLink, noteText } = parseApplicationNote(
+                    affiliate.application_note
+                  );
 
-                        <button
-                          type="button"
-                          className="affiliates-btn affiliates-btn--reject"
-                          onClick={() => handleAction(affiliate.id, "reject")}
-                          disabled={actionLoadingId === affiliate.id}
-                        >
-                          <i className="bx bx-x"></i>
-                          <span>Reject</span>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                  return (
+                    <tr key={affiliate.id}>
+                      <td>{affiliate.id}</td>
+                      <td>{affiliate.full_name}</td>
+                      <td>{affiliate.email}</td>
+                      <td>{affiliate.phone || "-"}</td>
+                      <td>
+                        {affiliate.created_at
+                          ? new Date(affiliate.created_at).toLocaleString()
+                          : "-"}
+                      </td>
+                      <td className="affiliates-note-cell">
+                        {socialLink ? (
+                          <div className="affiliates-note-block">
+                            <div className="affiliates-note-label">Social Link</div>
+                            <a
+                              href={normalizeLink(socialLink)}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="affiliates-note-link"
+                            >
+                              {socialLink}
+                            </a>
+                          </div>
+                        ) : null}
+
+                        {noteText ? (
+                          <div className="affiliates-note-block">
+                            <div className="affiliates-note-label">Application Note</div>
+                            <div className="affiliates-note-text">{noteText}</div>
+                          </div>
+                        ) : !socialLink ? (
+                          <span>-</span>
+                        ) : null}
+                      </td>
+                      <td>
+                        <div className="affiliates-actions">
+                          <button
+                            type="button"
+                            className="affiliates-btn affiliates-btn--approve"
+                            onClick={() => handleAction(affiliate.id, "approve")}
+                            disabled={actionLoadingId === affiliate.id}
+                          >
+                            <i className="bx bx-check"></i>
+                            <span>
+                              {actionLoadingId === affiliate.id ? "Working..." : "Approve"}
+                            </span>
+                          </button>
+
+                          <button
+                            type="button"
+                            className="affiliates-btn affiliates-btn--reject"
+                            onClick={() => handleAction(affiliate.id, "reject")}
+                            disabled={actionLoadingId === affiliate.id}
+                          >
+                            <i className="bx bx-x"></i>
+                            <span>Reject</span>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
