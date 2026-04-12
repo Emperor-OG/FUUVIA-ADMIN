@@ -65,7 +65,7 @@
 .affiliates-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 980px;
+  min-width: 1100px;
 }
 
 .affiliates-table thead th {
@@ -91,10 +91,46 @@
 }
 
 .affiliates-note-cell {
-  max-width: 280px;
+  min-width: 320px;
+  max-width: 420px;
+  color: #475569;
+}
+
+.affiliates-note-block + .affiliates-note-block {
+  margin-top: 0.8rem;
+}
+
+.affiliates-note-label {
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #64748b;
+  margin-bottom: 0.35rem;
+}
+
+.affiliates-note-link {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  padding: 0.4rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(72, 123, 255, 0.08);
+  color: #487bff;
+  font-weight: 700;
+  text-decoration: none;
+  word-break: break-all;
+}
+
+.affiliates-note-link:hover {
+  background: rgba(72, 123, 255, 0.14);
+}
+
+.affiliates-note-text {
   white-space: pre-wrap;
   word-break: break-word;
-  color: #475569;
+  color: #334155;
+  line-height: 1.6;
 }
 
 .affiliates-subtext {
@@ -199,5 +235,9 @@
 
   .affiliates-badge {
     white-space: normal;
+  }
+
+  .affiliates-note-cell {
+    min-width: 260px;
   }
 }
