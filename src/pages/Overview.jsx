@@ -12,6 +12,9 @@ export default function Overview() {
     provinces: 0,
     cities: 0,
     staff: 0,
+    affiliates: 0,
+    pending_affiliates: 0,
+    active_affiliates: 0,
   });
   const [loading, setLoading] = useState(true);
 
@@ -22,7 +25,18 @@ export default function Overview() {
       try {
         const data = await adminFetch("/api/admin/overview");
         if (!mounted) return;
-        setStats(data);
+        setStats({
+          users: Number(data?.users || 0),
+          stores: Number(data?.stores || 0),
+          products: Number(data?.products || 0),
+          orders: Number(data?.orders || 0),
+          provinces: Number(data?.provinces || 0),
+          cities: Number(data?.cities || 0),
+          staff: Number(data?.staff || 0),
+          affiliates: Number(data?.affiliates || 0),
+          pending_affiliates: Number(data?.pending_affiliates || 0),
+          active_affiliates: Number(data?.active_affiliates || 0),
+        });
       } catch (err) {
         console.error("Overview load failed:", err);
       } finally {
@@ -53,6 +67,9 @@ export default function Overview() {
         <StatCard title="Stores" value={stats.stores} />
         <StatCard title="Products" value={stats.products} />
         <StatCard title="Orders" value={stats.orders} />
+        <StatCard title="Affiliates" value={stats.affiliates} />
+        <StatCard title="Pending Affiliates" value={stats.pending_affiliates} />
+        <StatCard title="Active Affiliates" value={stats.active_affiliates} />
         <StatCard title="Staff Members" value={stats.staff} />
         <StatCard title="Provinces" value={stats.provinces} />
         <StatCard title="Cities" value={stats.cities} />
