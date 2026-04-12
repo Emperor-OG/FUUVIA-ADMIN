@@ -293,4 +293,99 @@ router.post("/:id/suspend", requireAdmin, async (req, res) => {
   }
 });
 
+// POST /api/admin/affiliates/:id/pay
+router.post("/:id/pay", requireAdmin, async (req, res) => {
+  const client = await pool.connect();
+
+  try {
+    if (!canManageAffiliates(req.session.admin.role)) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    const { id } = req.params;
+
+    const affiliateRes = await client.query(
+      `
+      SELECT id, full_name, email, status
+      FROM affiliates
+      WHERE id = $1
+      LIMIT 1
+      `,
+      [id]
+    );
+
+    const affiliate = affiliateRes.rows[0];
+
+    if (!affiliate) {
+      return res.status(404).json({ message: "Affiliate not found" });
+    }
+
+    await client.query("BEGIN");
+
+    const payoutRes = await client.query(
+      `
+      UPDATE affiliate_earnings
+      SET
+        earning_status = 'paid',
+        paid_at = NOW(),
+        updated_at = NOW()
+      WHERE affiliate_id = $1
+        AND earning_status = 'ready_for_payout'
+      RETURNING order_id, earning_amount
+      `,
+      [id]
+    );
+
+    const paidRows = payoutRes.rows || [];
+
+    if (!paidRows.length) {
+      await client.query("ROLLBACK");
+      return res.status(400).json({
+        message: "No earnings are ready for payout for this affiliate",
+      });
+    }
+
+    const orderIds = [
+      ...new Set(paidRows.map((row) => Number(row.order_id)).filter(Boolean)),
+    ];
+
+    if (orderIds.length > 0) {
+      await client.query(
+        `
+        UPDATE orders
+        SET
+          affiliate_status = 'paid',
+          updated_at = NOW()
+        WHERE id = ANY($1::int[])
+        `,
+        [orderIds]
+      );
+    }
+
+    const payoutTotal = paidRows.reduce(
+      (sum, row) => sum + Number(row.earning_amount || 0),
+      0
+    );
+
+    await client.query("COMMIT");
+
+    return res.json({
+      message: "Affiliate marked as paid successfully",
+      affiliate: {
+        id: affiliate.id,
+        full_name: affiliate.full_name,
+        email: affiliate.email,
+      },
+      payout_count: paidRows.length,
+      payout_total: Number(payoutTotal.toFixed(2)),
+    });
+  } catch (error) {
+    await client.query("ROLLBACK").catch(() => {});
+    console.error("Affiliate payout error:", error);
+    return res.status(500).json({ message: "Failed to mark affiliate as paid" });
+  } finally {
+    client.release();
+  }
+});
+
 module.exports = router;
