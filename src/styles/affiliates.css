@@ -65,7 +65,7 @@
 .affiliates-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 1250px;
+  min-width: 1050px;
 }
 
 .affiliates-table thead th {
@@ -248,6 +248,6 @@
   }
 
   .affiliates-table {
-    min-width: 1100px;
+    min-width: 950px;
   }
 }
