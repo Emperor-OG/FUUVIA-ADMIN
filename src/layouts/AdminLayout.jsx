@@ -38,9 +38,19 @@ export default function AdminLayout() {
     }
   };
 
-  const canManageStaff = ["emperor", "super_admin", "executive", "human_resource"].includes(
-    admin?.role
-  );
+  const canManageStaff = [
+    "emperor",
+    "super_admin",
+    "executive",
+    "human_resource",
+  ].includes(admin?.role);
+
+  const canManageAffiliates = [
+    "emperor",
+    "super_admin",
+    "executive",
+    "human_resource",
+  ].includes(admin?.role);
 
   const pageTitle =
     location.pathname === "/staff"
@@ -55,6 +65,8 @@ export default function AdminLayout() {
       ? "Products"
       : location.pathname === "/locations"
       ? "Locations"
+      : location.pathname === "/affiliates"
+      ? "Affiliates"
       : "Overview";
 
   return (
@@ -71,7 +83,9 @@ export default function AdminLayout() {
           <NavLink
             to="/"
             end
-            className={({ isActive }) => `admin-nav-link ${isActive ? "active" : ""}`}
+            className={({ isActive }) =>
+              `admin-nav-link ${isActive ? "active" : ""}`
+            }
           >
             <i className="bx bx-grid-alt"></i>
             <span>Overview</span>
@@ -79,7 +93,9 @@ export default function AdminLayout() {
 
           <NavLink
             to="/stores"
-            className={({ isActive }) => `admin-nav-link ${isActive ? "active" : ""}`}
+            className={({ isActive }) =>
+              `admin-nav-link ${isActive ? "active" : ""}`
+            }
           >
             <i className="bx bx-store"></i>
             <span>Stores</span>
@@ -87,7 +103,9 @@ export default function AdminLayout() {
 
           <NavLink
             to="/products"
-            className={({ isActive }) => `admin-nav-link ${isActive ? "active" : ""}`}
+            className={({ isActive }) =>
+              `admin-nav-link ${isActive ? "active" : ""}`
+            }
           >
             <i className="bx bx-package"></i>
             <span>Products</span>
@@ -95,7 +113,9 @@ export default function AdminLayout() {
 
           <NavLink
             to="/orders"
-            className={({ isActive }) => `admin-nav-link ${isActive ? "active" : ""}`}
+            className={({ isActive }) =>
+              `admin-nav-link ${isActive ? "active" : ""}`
+            }
           >
             <i className="bx bx-cart-alt"></i>
             <span>Orders</span>
@@ -103,24 +123,42 @@ export default function AdminLayout() {
 
           <NavLink
             to="/locations"
-            className={({ isActive }) => `admin-nav-link ${isActive ? "active" : ""}`}
-            >
+            className={({ isActive }) =>
+              `admin-nav-link ${isActive ? "active" : ""}`
+            }
+          >
             <i className="bx bx-map"></i>
             <span>Locations</span>
           </NavLink>
 
           <NavLink
             to="/users"
-            className={({ isActive }) => `admin-nav-link ${isActive ? "active" : ""}`}
+            className={({ isActive }) =>
+              `admin-nav-link ${isActive ? "active" : ""}`
+            }
           >
             <i className="bx bx-user"></i>
             <span>Users</span>
           </NavLink>
 
+          {canManageAffiliates ? (
+            <NavLink
+              to="/affiliates"
+              className={({ isActive }) =>
+                `admin-nav-link ${isActive ? "active" : ""}`
+              }
+            >
+              <i className="bx bx-network-chart"></i>
+              <span>Affiliates</span>
+            </NavLink>
+          ) : null}
+
           {canManageStaff ? (
             <NavLink
               to="/staff"
-              className={({ isActive }) => `admin-nav-link ${isActive ? "active" : ""}`}
+              className={({ isActive }) =>
+                `admin-nav-link ${isActive ? "active" : ""}`
+              }
             >
               <i className="bx bx-user-plus"></i>
               <span>Staff</span>
