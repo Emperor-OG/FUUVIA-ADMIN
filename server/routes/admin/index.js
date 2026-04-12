@@ -8,6 +8,7 @@ const ordersRoutes = require("./orders.routes.js");
 const usersRoutes = require("./users.routes.js");
 const productsRoutes = require("./products.routes.js");
 const locationsRoutes = require("./locations.routes.js");
+const affiliatesRoutes = require("./affiliates.routes.js");
 
 const router = express.Router();
 
@@ -19,5 +20,6 @@ router.use("/orders", ordersRoutes);
 router.use("/users", usersRoutes);
 router.use("/products", productsRoutes);
 router.use("/locations", locationsRoutes);
+router.use("/affiliates", affiliatesRoutes);
 
 module.exports = router;
