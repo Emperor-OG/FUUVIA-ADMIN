@@ -1,5 +1,6 @@
 const express = require("express");
 const pool = require("../../db");
+const { queueAffiliateEmail } = require("../../services/queueAffiliateEmail");
 
 const router = express.Router();
 
@@ -190,6 +191,8 @@ router.get("/:id/orders", requireAdmin, async (req, res) => {
 
 // POST /api/admin/affiliates/:id/approve
 router.post("/:id/approve", requireAdmin, async (req, res) => {
+  const client = await pool.connect();
+
   try {
     if (!canManageAffiliates(req.session.admin.role)) {
       return res.status(403).json({ message: "Forbidden" });
@@ -197,9 +200,11 @@ router.post("/:id/approve", requireAdmin, async (req, res) => {
 
     const { id } = req.params;
 
-    const affiliateRes = await pool.query(
+    await client.query("BEGIN");
+
+    const affiliateRes = await client.query(
       `
-      SELECT id, full_name, status
+      SELECT id, full_name, email, status
       FROM affiliates
       WHERE id = $1
       LIMIT 1
@@ -210,16 +215,18 @@ router.post("/:id/approve", requireAdmin, async (req, res) => {
     const affiliate = affiliateRes.rows[0];
 
     if (!affiliate) {
+      await client.query("ROLLBACK");
       return res.status(404).json({ message: "Affiliate not found" });
     }
 
     if (affiliate.status === "active") {
+      await client.query("ROLLBACK");
       return res.status(400).json({ message: "Affiliate already active" });
     }
 
     const referralCode = await getUniqueReferralCode(affiliate.full_name);
 
-    const result = await pool.query(
+    const result = await client.query(
       `
       UPDATE affiliates
       SET
@@ -234,13 +241,37 @@ router.post("/:id/approve", requireAdmin, async (req, res) => {
       [id, referralCode, req.session.admin.id]
     );
 
+    const approvedAffiliate = result.rows[0];
+
+    await queueAffiliateEmail(
+      {
+        type: "affiliate_approved",
+        recipient_email: approvedAffiliate.email,
+        subject: "Your FUUVIA affiliate application has been approved",
+        payload: {
+          full_name: approvedAffiliate.full_name,
+          referral_code: approvedAffiliate.referral_code,
+          signin_url:
+            process.env.AFFILIATE_SIGNIN_URL ||
+            "https://affiliate.fuuvia.com/signin",
+        },
+        notification_key: `affiliate_approved_${approvedAffiliate.id}`,
+      },
+      client
+    );
+
+    await client.query("COMMIT");
+
     return res.json({
       message: "Affiliate approved successfully",
-      affiliate: result.rows[0],
+      affiliate: approvedAffiliate,
     });
   } catch (error) {
+    await client.query("ROLLBACK").catch(() => {});
     console.error("Approve affiliate error:", error);
     return res.status(500).json({ message: "Failed to approve affiliate" });
+  } finally {
+    client.release();
   }
 });
 
