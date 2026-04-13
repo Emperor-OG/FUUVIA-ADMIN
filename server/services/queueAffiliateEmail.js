@@ -9,9 +9,17 @@ async function queueAffiliateEmail(data, providedClient = null) {
     notification_key = null,
   } = data || {};
 
-  if (!type) throw new Error("queueAffiliateEmail requires type");
-  if (!recipient_email) throw new Error("queueAffiliateEmail requires recipient_email");
-  if (!subject) throw new Error("queueAffiliateEmail requires subject");
+  if (!type) {
+    throw new Error("queueAffiliateEmail requires type");
+  }
+
+  if (!recipient_email) {
+    throw new Error("queueAffiliateEmail requires recipient_email");
+  }
+
+  if (!subject) {
+    throw new Error("queueAffiliateEmail requires subject");
+  }
 
   const client = providedClient || (await pool.connect());
 
@@ -57,7 +65,9 @@ async function queueAffiliateEmail(data, providedClient = null) {
 
     return result.rows[0];
   } finally {
-    if (!providedClient) client.release();
+    if (!providedClient) {
+      client.release();
+    }
   }
 }
 
