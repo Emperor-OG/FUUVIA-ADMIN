@@ -68,6 +68,11 @@ router.get("/", requireAdmin, async (req, res) => {
           status,
           application_note,
           referral_code,
+          bank_name,
+          account_holder,
+          account_number,
+          account_type,
+          branch_code,
           created_at,
           verified_at
         FROM affiliates
@@ -84,6 +89,11 @@ router.get("/", requireAdmin, async (req, res) => {
           a.phone,
           a.status,
           a.referral_code,
+          a.bank_name,
+          a.account_holder,
+          a.account_number,
+          a.account_type,
+          a.branch_code,
           a.created_at,
           a.verified_at,
           COALESCE(SUM(CASE WHEN ae.earning_status = 'tracked' THEN ae.earning_amount ELSE 0 END), 0) AS tracked_total,
@@ -121,7 +131,18 @@ router.get("/:id/orders", requireAdmin, async (req, res) => {
 
     const affiliateRes = await pool.query(
       `
-      SELECT id, full_name, email, status, referral_code
+      SELECT
+        id,
+        full_name,
+        email,
+        phone,
+        status,
+        referral_code,
+        bank_name,
+        account_holder,
+        account_number,
+        account_type,
+        branch_code
       FROM affiliates
       WHERE id = $1
       LIMIT 1
@@ -306,7 +327,18 @@ router.post("/:id/pay", requireAdmin, async (req, res) => {
 
     const affiliateRes = await client.query(
       `
-      SELECT id, full_name, email, status
+      SELECT
+        id,
+        full_name,
+        email,
+        phone,
+        status,
+        referral_code,
+        bank_name,
+        account_holder,
+        account_number,
+        account_type,
+        branch_code
       FROM affiliates
       WHERE id = $1
       LIMIT 1
@@ -375,6 +407,14 @@ router.post("/:id/pay", requireAdmin, async (req, res) => {
         id: affiliate.id,
         full_name: affiliate.full_name,
         email: affiliate.email,
+        phone: affiliate.phone,
+        status: affiliate.status,
+        referral_code: affiliate.referral_code,
+        bank_name: affiliate.bank_name,
+        account_holder: affiliate.account_holder,
+        account_number: affiliate.account_number,
+        account_type: affiliate.account_type,
+        branch_code: affiliate.branch_code,
       },
       payout_count: paidRows.length,
       payout_total: Number(payoutTotal.toFixed(2)),
