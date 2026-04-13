@@ -96,7 +96,7 @@ function buildAffiliateApprovedTemplate(payload = {}) {
       `Hello ${fullName},`,
       "",
       "Great news — your FUUVIA affiliate application has been approved.",
-      "You can now sign in to your affiliate account and start sharing your referral link to earn from qualifying orders.",
+      "You can now sign in to your affiliate account and start sharing your referral link to start earning.",
       referralCode ? `Referral code: ${referralCode}` : "",
       `Sign in: ${signinUrl}`,
       "",
