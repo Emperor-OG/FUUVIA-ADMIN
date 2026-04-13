@@ -8,6 +8,7 @@ const connectPgSimple = require("connect-pg-simple");
 
 const pool = require("./db.js");
 const adminRoutes = require("./routes/admin.js");
+const { startAffiliateEmailWorker } = require("./scripts/runAffiliateEmailWorker");
 
 const envPath = path.join(__dirname, "..", ".env");
 if (fs.existsSync(envPath)) dotenv.config({ path: envPath });
@@ -111,4 +112,10 @@ app.listen(PORT, HOST, () => {
   console.log(
     `✅ FUUVIA Admin server running on ${HOST}:${PORT} (${isProd ? "Production" : "Dev"})`
   );
+
+  try {
+    startAffiliateEmailWorker();
+  } catch (error) {
+    console.error("Failed to start affiliate email worker:", error);
+  }
 });
