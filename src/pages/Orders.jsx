@@ -544,7 +544,7 @@ export default function Orders() {
                         </td>
                         <td>{order.reference || "—"}</td>
                         <td>{formatCurrency(order.total_amount)}</td>
-                        <td>{formatCurrency(order.fuuvia_commission)}</td>
+                        <td>{formatCurrency(order.fuuvia_total)}</td>
                         <td>
                           <span
                             className={`orders-badge orders-badge-${
@@ -685,7 +685,7 @@ export default function Orders() {
                   />
                   <DetailRow
                     label="FUUVIA Commission"
-                    value={formatCurrency(selectedOrder.fuuvia_commission)}
+                    value={formatCurrency(selectedOrder.fuuvia_total)}
                   />
                   <DetailRow
                     label="Paid At"
