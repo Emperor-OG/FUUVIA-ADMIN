@@ -177,7 +177,7 @@ router.get("/ledger", requireAdminAuth, async (req, res) => {
         ${periodExpression} AS period,
         COUNT(*)::int AS paid_orders,
         COALESCE(SUM(total_amount), 0)::numeric(12,2) AS gross_sales,
-        COALESCE(SUM(fuuvia_commission), 0)::numeric(12,2) AS fuuvia_income
+        COALESCE(SUM(fuuvia_commission), 0)::numeric(12,2) AS fuuvia_total
       FROM orders
       WHERE payment_status = 'paid'
       GROUP BY 1
