@@ -123,27 +123,27 @@ router.get("/summary", requireAdminAuth, async (req, res) => {
       SELECT
         COUNT(*) FILTER (WHERE payment_status = 'paid')::int AS paid_orders,
 
-        COALESCE(SUM(fuuvia_commission) FILTER (
+        COALESCE(SUM(fuuvia_total) FILTER (
           WHERE payment_status = 'paid'
             AND DATE(COALESCE(paid_at, created_at)) = CURRENT_DATE
         ), 0)::numeric(12,2) AS today_income,
 
-        COALESCE(SUM(fuuvia_commission) FILTER (
+        COALESCE(SUM(fuuvia_total) FILTER (
           WHERE payment_status = 'paid'
             AND DATE_TRUNC('week', COALESCE(paid_at, created_at)) = DATE_TRUNC('week', NOW())
         ), 0)::numeric(12,2) AS week_income,
 
-        COALESCE(SUM(fuuvia_commission) FILTER (
+        COALESCE(SUM(fuuvia_total) FILTER (
           WHERE payment_status = 'paid'
             AND DATE_TRUNC('month', COALESCE(paid_at, created_at)) = DATE_TRUNC('month', NOW())
         ), 0)::numeric(12,2) AS month_income,
 
-        COALESCE(SUM(fuuvia_commission) FILTER (
+        COALESCE(SUM(fuuvia_total) FILTER (
           WHERE payment_status = 'paid'
             AND DATE_TRUNC('year', COALESCE(paid_at, created_at)) = DATE_TRUNC('year', NOW())
         ), 0)::numeric(12,2) AS year_income,
 
-        COALESCE(SUM(fuuvia_commission) FILTER (
+        COALESCE(SUM(fuuvia_total) FILTER (
           WHERE payment_status = 'paid'
         ), 0)::numeric(12,2) AS lifetime_income
       FROM orders
@@ -177,7 +177,7 @@ router.get("/ledger", requireAdminAuth, async (req, res) => {
         ${periodExpression} AS period,
         COUNT(*)::int AS paid_orders,
         COALESCE(SUM(total_amount), 0)::numeric(12,2) AS gross_sales,
-        COALESCE(SUM(fuuvia_commission), 0)::numeric(12,2) AS fuuvia_total
+        COALESCE(SUM(fuuvia_total), 0)::numeric(12,2) AS fuuvia_total
       FROM orders
       WHERE payment_status = 'paid'
       GROUP BY 1
